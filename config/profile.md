@@ -17,6 +17,11 @@ do not hardcode them in the skill.
 
 - **timezone:** `Asia/Kolkata` (IST)
 - **cadence:** 3 runs per day (exact times set manually in the routine UI)
+- **company tiers:** each company in `companies.yaml` has a `tier` controlling scan
+  frequency (derived from IST time, no state):
+  - `A` = every run (3x/day) — highest-volume junior SDE hirers
+  - `B` = once/day, the morning run only (IST hour < 12)
+  - `C` = ~2x/week, morning run of Monday & Thursday (IST hour < 12 and weekday Mon/Thu)
 - **week_anchor_monday:** `2026-08-17`
   # Monday used to compute sequential week numbers: NN = floor((thisMonday - anchor)/7) + 1.
   # Set this to the Monday of (or before) your first real run. Default = week of first build.

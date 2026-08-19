@@ -2,6 +2,11 @@
 #
 # Fields per entry:
 #   name         : display name
+#   tier         : scan cadence (A | B | C) — how often this company is scanned:
+#                    A = every run (3x/day)
+#                    B = once/day — only the day's first (morning) run
+#                    C = ~2x/week — only the first run on Monday & Thursday
+#                  See config/profile.md + SKILL.md step 3 for the exact time rule.
 #   ats          : applicant-tracking system → picks the reference file
 #                  (workday | greenhouse | lever | ashby | smartrecruiters |
 #                   icims | oracle | successfactors | eightfold | custom)
@@ -15,146 +20,196 @@
 
 big_tech:
   - name: Google
+    tier: A
     ats: custom
     careers_url: https://www.google.com/about/careers/applications/jobs/results/
   - name: Microsoft
+    tier: A
     ats: custom            # Phenom
     careers_url: https://careers.microsoft.com/
   - name: Amazon
+    tier: A
     ats: custom
     careers_url: https://www.amazon.jobs/en/
   - name: Apple
+    tier: B
     ats: custom
     careers_url: https://jobs.apple.com/en-in/search
   - name: Meta
+    tier: B
     ats: custom
     careers_url: https://www.metacareers.com/jobs/
   - name: Nvidia
+    tier: A
     ats: workday
     careers_url: https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite
   - name: Adobe
+    tier: A
     ats: workday
     careers_url: https://careers.adobe.com/us/en/search-results
   - name: Salesforce
+    tier: A
     ats: workday
     careers_url: https://careers.salesforce.com/en/jobs/
   - name: Uber
+    tier: A
     ats: custom
     careers_url: https://www.uber.com/us/en/careers/list/
   - name: Atlassian
+    tier: A
     ats: custom            # verify
     careers_url: https://www.atlassian.com/company/careers/all-jobs
   - name: Oracle
+    tier: B
     ats: oracle
     careers_url: https://careers.oracle.com/jobs/
   - name: Cisco
+    tier: B
     ats: custom
     careers_url: https://jobs.cisco.com/jobs/SearchJobs/
   - name: Qualcomm
+    tier: A
     ats: workday
     careers_url: https://careers.qualcomm.com/careers
   - name: ServiceNow
+    tier: B
     ats: workday
     careers_url: https://careers.servicenow.com/careers/jobs/
   - name: SAP Labs
+    tier: B
     ats: successfactors
     careers_url: https://jobs.sap.com/
   - name: Intuit
+    tier: B
     ats: workday
     careers_url: https://jobs.intuit.com/
   - name: Walmart Global Tech
+    tier: A
     ats: workday
     careers_url: https://careers.walmart.com/technology
   - name: PayPal
+    tier: A
     ats: workday
     careers_url: https://careers.pypl.com/home/
   - name: Visa
+    tier: B
     ats: custom            # verify
     careers_url: https://corporate.visa.com/en/jobs.html
 
 product_unicorns:
   - name: Flipkart
+    tier: A
     ats: custom
     careers_url: https://www.flipkartcareers.com/
   - name: Swiggy
+    tier: A
     ats: custom            # verify (Darwinbox/Lever)
     careers_url: https://careers.swiggy.com/
-  - name: Zomato
-    ats: custom
-    careers_url: https://www.zomato.com/careers
   - name: PhonePe
+    tier: A
     ats: smartrecruiters    # verify
     careers_url: https://www.phonepe.com/careers/job-openings/
+  - name: Meesho
+    tier: A
+    ats: custom            # verify
+    careers_url: https://www.meesho.io/jobs
+  - name: Rippling
+    tier: A
+    ats: ashby             # verify
+    careers_url: https://www.rippling.com/careers/open-roles
+  - name: Zomato
+    tier: B
+    ats: custom
+    careers_url: https://www.zomato.com/careers
   - name: Razorpay
+    tier: B
     ats: lever              # verify
     careers_url: https://razorpay.com/jobs/
   - name: CRED
+    tier: B
     ats: lever              # verify
     careers_url: https://careers.cred.club/
   - name: Groww
+    tier: B
     ats: lever              # verify
     careers_url: https://groww.in/careers
   - name: Zerodha
+    tier: B
     ats: custom
     careers_url: https://zerodha.com/careers/
-  - name: Meesho
-    ats: custom            # verify
-    careers_url: https://www.meesho.io/jobs
   - name: Sprinklr
+    tier: B
     ats: lever              # verify
     careers_url: https://careers.sprinklr.com/
   - name: Postman
+    tier: B
     ats: greenhouse         # verify
     careers_url: https://www.postman.com/company/careers/open-positions/
   - name: Zeta
+    tier: B
     ats: lever              # verify
     careers_url: https://jobs.zeta.tech/
   - name: Dream11
+    tier: B
     ats: custom            # verify (Darwinbox)
     careers_url: https://www.dream11.com/careers
   - name: Rubrik
+    tier: C
     ats: greenhouse         # verify
     careers_url: https://www.rubrik.com/company/careers
   - name: Databricks
+    tier: C
     ats: greenhouse
     careers_url: https://www.databricks.com/company/careers/open-positions
   - name: Confluent
+    tier: C
     ats: greenhouse         # verify
     careers_url: https://careers.confluent.io/
   - name: MongoDB
+    tier: C
     ats: greenhouse
     careers_url: https://www.mongodb.com/company/careers/teams/engineering
 
-quant_hft:               # highest CTC; hire few junior SDEs, selective
+quant_hft:               # highest CTC; hire few junior SDEs, selective → all Tier C
   - name: D. E. Shaw
+    tier: C
     ats: custom
     careers_url: https://www.deshaw.com/careers
   - name: Tower Research Capital
+    tier: C
     ats: greenhouse         # verify
     careers_url: https://www.tower-research.com/open-positions/
   - name: Graviton Research Capital
+    tier: C
     ats: custom
     careers_url: https://www.gravitontrading.com/careers.html
   - name: WorldQuant
+    tier: C
     ats: custom            # verify
     careers_url: https://www.worldquant.com/career-listing/
   - name: Optiver
+    tier: C
     ats: custom            # verify
     careers_url: https://optiver.com/working-at-optiver/career-opportunities/
   - name: Arcesium
+    tier: C
     ats: custom            # verify
     careers_url: https://www.arcesium.com/careers/
 
 fintech_banks:
   - name: Goldman Sachs
+    tier: B
     ats: custom
     careers_url: https://higher.gs.com/roles
   - name: Morgan Stanley
+    tier: B
     ats: custom
     careers_url: https://www.morganstanley.com/careers/career-opportunities-search
   - name: JPMorgan Chase
+    tier: B
     ats: oracle             # verify
     careers_url: https://careers.jpmorgan.com/global/en/students/programs
   - name: American Express
+    tier: B
     ats: eightfold          # verify
     careers_url: https://aexp.eightfold.ai/careers

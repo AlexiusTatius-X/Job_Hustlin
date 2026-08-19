@@ -51,6 +51,14 @@ processed in parallel batches if that speeds things up.
 ### 3. Discover listings + cheap URL dedup (per company)
 Process each company in `companies.yaml`. **Do this before opening any job-description
 (JD) pages** — it is what keeps credits/time low.
+- **Tier gate (which companies run this time):** include a company only if its `tier`
+  is due for this run, based on the IST time from step 1:
+  - `tier: A` → **every run**.
+  - `tier: B` → only the **day's first (morning) run** — i.e. IST hour < 12.
+  - `tier: C` → only the **first run of Monday and Thursday** — IST hour < 12 **and**
+    weekday ∈ {Mon, Thu}.
+  Skip companies not due; they're covered on their next scheduled cadence. The rule is
+  derived purely from the timestamp, so no extra state is needed.
 - Pick the extraction approach from its `ats` type and read the matching reference:
   - `workday` → `references/ats-workday.md`
   - `greenhouse` → `references/ats-greenhouse.md`
