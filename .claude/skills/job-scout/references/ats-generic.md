@@ -7,10 +7,17 @@ fails. It relies on Firecrawl's general capabilities rather than a known API.
 
 ## Strategy (in order)
 
-### A. Map the careers site, then scrape listings
-1. Firecrawl `map` the `careers_url` to enumerate URLs; keep those that look like search
-   or job pages (contain `job`, `careers`, `search`, `role`, `opening`, or a country/city).
-2. `scrape`/`extract` the software-engineering listing, filtered to India + SDE terms.
+> Apply `references/firecrawl-tuning.md` throughout: change-tracking on the listing to
+> short-circuit unchanged sites, `maxAge` cache on JD scrapes, minimal `formats`.
+
+### A. Map the careers site (filtered), then scrape only new listings
+1. Firecrawl `map` the `careers_url` **with `search: "software engineer"`** (and, if the
+   site needs it, a city term) to enumerate just the relevant job URLs (~1 credit) instead
+   of scraping the whole page. Keep those that look like job pages (contain `job`,
+   `careers`, `search`, `role`, `opening`, or a country/city).
+2. Dedup the mapped URLs vs the `Seen` tab **first**, then `scrape` only the unseen JDs
+   (with `maxAge` per the tuning cheatsheet). When you do scrape the listing page itself,
+   add the `changeTracking` git-diff format so an unchanged page skips the company.
 
 ### B. If mapping is unhelpful, use site-scoped search
 Run Firecrawl `search` queries scoped to the careers domain, e.g.:

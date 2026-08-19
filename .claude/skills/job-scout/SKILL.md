@@ -59,15 +59,28 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
     weekday ∈ {Mon, Thu}.
   Skip companies not due; they're covered on their next scheduled cadence. The rule is
   derived purely from the timestamp, so no extra state is needed.
+- Read `references/firecrawl-tuning.md` once and apply its credit levers to **every**
+  Firecrawl call below (change-tracking on listings, `maxAge` cache on JD scrapes,
+  `map` with a `search` filter, minimal `formats`).
 - Pick the extraction approach from its `ats` type and read the matching reference:
   - `workday` → `references/ats-workday.md`
   - `greenhouse` → `references/ats-greenhouse.md`
   - `lever` → `references/ats-lever.md`
   - anything else (`custom`, `oracle`, `successfactors`, `smartrecruiters`, `ashby`,
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
-- Fetch the **listing only** (the cheap part): the ATS JSON API, or Firecrawl
-  `map`/`search`/`scrape` on the careers page. From it collect candidate rows of
-  `role_title`, `location` (if shown), `job_url`, `job_id` (if present). One fetch.
+- **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,
+  or a GET-able ATS/API URL) with `formats: ["markdown", {type:"changeTracking",
+  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. Then:
+  - `changeStatus == "same"` → the page is identical to the last run: **skip this company
+    entirely** (no map, no JD scrapes, no classification). Record it as "unchanged".
+  - `changeStatus == "changed"` → take candidate rows only from the **added (`+`) lines**
+    of `diff.text` (these are the new postings).
+  - `changeStatus == "new"` (first ever) → process the full listing as usual.
+  This is server-side state (per team, never expires), so it needs no repo storage.
+- Fetch the **listing only** (the cheap part): the ATS JSON API, or Firecrawl `map`
+  (with `search:"software engineer"`) / `search` / `scrape` on the careers page. From it
+  collect candidate rows of `role_title`, `location` (if shown), `job_url`, `job_id`
+  (if present). One fetch, minimal `formats`.
 - Coarse pre-filter on what the listing already shows: drop obvious non-matches
   (clearly ML/DS/PM/research titles, or a shown location that is remote/outside India).
   Be permissive — the real decision happens by JD in step 4.
@@ -82,8 +95,10 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 
 ### 4. Open JDs for unseen candidates only, then classify & filter
 - For each **unseen** candidate, get its JD: reuse the inline JD from step 3 if the ATS
-  already returned it; otherwise scrape the detail page. **This per-JD scrape — the only
-  expensive step — is now paid only for genuinely new postings.**
+  already returned it; otherwise scrape the detail page with minimal `formats:["markdown"]`,
+  `onlyMainContent:true`, and `maxAge: 604800000` (7-day cache — a JD is immutable once
+  posted, so a cached read is cheaper). **This per-JD scrape — the only expensive step — is
+  now paid only for genuinely new postings.**
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).
@@ -119,10 +134,11 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   jobs today" note; otherwise skip the email.
 
 ### 9. Run summary
-- End with a brief transcript summary: companies scanned, companies that errored, and the
-  funnel — candidates listed → unseen after Dedup #1 → JDs opened → kept after filter →
-  rows logged — plus whether the email was sent. Flag any `# verify` companies whose ATS
-  you confirmed so the config can be updated.
+- End with a brief transcript summary: companies scanned, companies **skipped as unchanged**
+  (change-tracking `"same"`), companies that errored, and the funnel — candidates listed →
+  unseen after Dedup #1 → JDs opened → kept after filter → rows logged — plus whether the
+  email was sent. Flag any `# verify` companies whose ATS you confirmed so the config can
+  be updated.
 
 ## Guardrails
 - **Never fabricate** a posting, URL, or company. If you didn't fetch it, don't log it.
