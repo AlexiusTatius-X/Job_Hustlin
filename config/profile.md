@@ -6,7 +6,7 @@ do not hardcode them in the skill.
 ## Notifications
 
 - **notify_email:** `oniidaddy881@gmail.com`
-- **email_when_empty:** `true`   # still send a short "no new jobs" email so you know it ran
+- **email_when_empty:** `false`   # only email when there are new jobs; run history + sheet confirm empty runs
 
 ## State store (Google Sheets)
 
