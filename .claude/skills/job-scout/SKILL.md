@@ -52,10 +52,11 @@ processed in parallel batches if that speeds things up.
 Process each company in `companies.yaml`. **Do this before opening any job-description
 (JD) pages** — it is what keeps credits/time low.
 - **Tier gate (which companies run this time):** include a company only if its `tier`
-  is due for this run, based on the IST time from step 1:
-  - `tier: A` → **every run**.
-  - `tier: B` → only the **day's first (morning) run** — i.e. IST hour < 12.
-  - `tier: C` → only the **first run of Monday and Thursday** — IST hour < 12 **and**
+  is due for this run, based on the IST time from step 1 and the pinned `run_times` in
+  `profile.md` (`08:00`, `14:00`, `20:00`; the `08:00` slot is the only one with hour < 12):
+  - `tier: A` → **every run** (all 3 slots).
+  - `tier: B` → only the **morning run** — i.e. IST hour < 12 (the `08:00` slot).
+  - `tier: C` → only the **morning run of Monday and Thursday** — IST hour < 12 **and**
     weekday ∈ {Mon, Thu}.
   Skip companies not due; they're covered on their next scheduled cadence. The rule is
   derived purely from the timestamp, so no extra state is needed.

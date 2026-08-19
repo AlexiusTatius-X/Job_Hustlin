@@ -2,8 +2,10 @@
 
 Paste the block below into the **Instructions** field when creating the routine at
 `claude.ai/code/routines`. Select this repository, and include the **Firecrawl**,
-**Gmail**, and **Google Sheets** connectors. Add a **Schedule** trigger with 3 daily
-times in IST (your choice, e.g. 09:00 / 14:00 / 19:00).
+**Gmail**, and **Google Sheets** connectors. Add a **Schedule** trigger with the 3 daily
+IST times pinned in `config/profile.md`: **08:00 / 14:00 / 20:00**. Keep exactly one
+morning slot (`08:00`) — the tier gate treats the IST hour < 12 run as the once-a-day
+(Tier B) and twice-a-week (Tier C) scan, so two morning slots would double-scan them.
 
 ---
 
