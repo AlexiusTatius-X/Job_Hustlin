@@ -80,11 +80,37 @@ Greenhouse (`?content=true`), Lever (`descriptionPlain`), and Workday detail cal
 the JD **inline** with the listing — zero extra JD scrapes. Always try the API path first
 (see the per-ATS reference files); fall back to scrape/map only for `custom` sites.
 
-## 6. Avoid the expensive endpoints
+## 6. Batch the scrapes — throughput, NOT credits
+
+`/batch/scrape` costs exactly **1 credit per URL**, the same as scraping each URL alone
+(verified: 36 URLs → 36 credits). It gives **no credit discount**, but it runs the URLs
+concurrently in one job and accepts all scrape options (`changeTracking`, `maxAge`,
+`onlyMainContent`). Use it to cut tool-call round-trips and latency:
+- Batch all **due listing pages** into one call with the `changeTracking` git-diff format.
+- Batch all **unseen JD** detail pages into one call with `maxAge`.
+Only a throughput win — the credit total is unchanged, so tiering + change-tracking remain
+the real savers.
+
+## 7. Avoid the credit-expensive features
 
 - **`/agent`** (autonomous extraction) can spend up to 2,500 credits per call — do **not**
   use it for routine scouting.
-- **`json`/`extract` change-tracking mode** costs 5 credits/page — use plain `git-diff`.
+- **`json` / `extract` formats** and **`json`-mode change tracking** cost extra (5 credits/
+  page for json change tracking) — use plain `git-diff` and read the rows yourself.
+- **Enhanced mode, stealth proxies, PII redaction** all add credits and are unnecessary
+  for public careers pages — leave them off.
+
+## Evaluated but NOT adopted: `/monitor`
+
+Firecrawl's hosted **Monitor** schedules recurring checks and emails/webhooks on change.
+It was considered and rejected for this skill because:
+- **No credit savings**: a scrape monitor is **1 credit/URL/check** — identical to our
+  `changeTracking` listing scrape. It relocates the work, it doesn't cheapen it.
+- It **can't** run our domain logic (SDE-by-JD classification, 0–2yr filter, on-site-India
+  rule, Google-Sheet dedup, fit ranking) — its `goal` judge is generic and costs +1 credit/
+  changed page.
+- It notifies by **webhook**, which a time-scheduled Claude Routine can't act on.
+Keep the logic in the skill; use `changeTracking` (lever 1) for the same credit floor.
 
 ## Steady-state effect
 
