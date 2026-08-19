@@ -37,56 +37,71 @@ processed in parallel batches if that speeds things up.
 - Compute **this week's Monday** = the most recent Monday ≤ `today`.
 - Compute the week tab name (see `references/sheet-format.md` → "Week tab naming").
 
-### 2. Load the Google Sheet state
+### 2. Load dedup memory (the `Seen` tab)
 - Open the spreadsheet by `sheet_id` from `profile.md`.
-- Ensure the current **week tab** exists; if missing, create it with the header block
-  (see `references/sheet-format.md`).
-- Read the **existing rows in the current week tab** AND, for dedup safety, the previous
-  week tab if it exists. Build a set of already-seen keys = normalized `job_url` (and
-  `job_id` when present). This set drives Option-A dedup: a posting already in the sheet
-  is never logged or emailed again.
+- Ensure the **`Seen`** tab exists — the all-time, long-format ledger of every job URL
+  ever logged (see `references/sheet-format.md` → "The `Seen` tab"). Create it with its
+  header if missing.
+- Read the **`Seen` tab's `job_url` column** into an in-memory **seen-set** (normalize
+  each URL). This one tab is the **only** dedup index — do NOT dedup against the weekly
+  tabs. It spans all time, so a still-open job posted weeks ago is never re-logged.
+- Ensure the current **week tab** exists (this is the human-readable digest log, not the
+  dedup source); if missing, create it with the header block per `sheet-format.md`.
 
-### 3. Scrape each company
-For each company in `companies.yaml`:
+### 3. Discover listings + cheap URL dedup (per company)
+Process each company in `companies.yaml`. **Do this before opening any job-description
+(JD) pages** — it is what keeps credits/time low.
 - Pick the extraction approach from its `ats` type and read the matching reference:
   - `workday` → `references/ats-workday.md`
   - `greenhouse` → `references/ats-greenhouse.md`
   - `lever` → `references/ats-lever.md`
   - anything else (`custom`, `oracle`, `successfactors`, `smartrecruiters`, `ashby`,
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
-- Use Firecrawl to get the current software-engineering openings: search/map to find the
-  right listing URL(s), then `scrape`/`extract` job rows. Prefer structured `extract`.
-- If a company's `ats` is marked `# verify` or the pattern fails, fall back to
-  `ats-generic.md` (Firecrawl `search` scoped to the careers domain + India + SDE terms),
-  and note the working approach in the run summary so the config can be corrected later.
+- Fetch the **listing only** (the cheap part): the ATS JSON API, or Firecrawl
+  `map`/`search`/`scrape` on the careers page. From it collect candidate rows of
+  `role_title`, `location` (if shown), `job_url`, `job_id` (if present). One fetch.
+- Coarse pre-filter on what the listing already shows: drop obvious non-matches
+  (clearly ML/DS/PM/research titles, or a shown location that is remote/outside India).
+  Be permissive — the real decision happens by JD in step 4.
+- **Dedup #1 — URL vs `Seen` (this is the credit saver):** drop every candidate whose
+  normalized `job_url`/`job_id` is already in the seen-set from step 2. Only **unseen**
+  candidates continue. On steady-state runs this eliminates almost everything, so you
+  open very few JDs.
+- Note: for ATS-API companies (Greenhouse `content=true`, Lever `descriptionPlain`,
+  Workday detail) the JD text often comes back **inline** in the listing call — keep it,
+  so step 4 needs no extra fetch for those.
 - Be resilient: if one company errors, record the error and continue to the next.
 
-### 4. Classify & filter each posting
-Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
-- It is a **core software-development** role (SDE/SWE/software developer or equivalent) —
-  decide by **job-description content**, not just the title (handles odd titles like Apple's).
-- Required experience is within **0–2 years** (reject ">2 years").
-- Location is **on-site in India** (reject remote / non-India).
-- It is **not** an excluded category (internship, ML/AI, data science, research, etc.).
+### 4. Open JDs for unseen candidates only, then classify & filter
+- For each **unseen** candidate, get its JD: reuse the inline JD from step 3 if the ATS
+  already returned it; otherwise scrape the detail page. **This per-JD scrape — the only
+  expensive step — is now paid only for genuinely new postings.**
+- Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
+  - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
+    — decide by **JD content**, not just the title (handles odd titles like Apple's).
+  - Required experience is within **0–2 years** (reject ">2 years").
+  - Location is **on-site in India** (reject remote / non-India).
+  - It is **not** an excluded category (internship, ML/AI, data science, research, etc.).
+- For each kept posting, capture: `company, role_title, location, experience, job_url,
+  job_id` (if available), `posted_date` (if available).
 
-For each kept posting, capture: `company, role_title, location, experience, job_url,
-job_id` (if available), `posted_date` (if available).
-
-### 5. De-duplicate (Option A)
-- Drop any posting whose normalized `job_url`/`job_id` is already in the seen-set from
-  step 2. A given posting is logged **once**, at first sight.
-- Two **different** postings (different URLs) from the same company are **both** kept —
-  they become separate rows.
+### 5. De-duplicate within this run (Dedup #2)
+- Among this run's kept postings, remove any repeats by normalized `job_url` — the same
+  posting can surface twice in one run (e.g. listed under two cities, or found via both
+  the careers page and a web search). Log it **once**.
+- (Dedup #1 in step 3 already handled repeats vs previous runs.)
 
 ### 6. Rank
 - Compute a 0–10 **fit score** per remaining posting using the rule-based rubric in
   `references/matching-rubric.md` (title match, experience fit, location priority,
   freshness). Sort new jobs by fit score descending.
 
-### 7. Append to the Google Sheet
-- Under **today's day-header row** in the current week tab (create the day header if this
-  is the first write of the day), append one row per new job. Follow the exact column
-  order and formatting in `references/sheet-format.md`. Set `status = New`.
+### 7. Append to the Google Sheet (both tabs)
+- For every new job, append a row to the **`Seen`** tab — `job_url, job_id, company,
+  role_title, first_seen = today` — so it is skipped by Dedup #1 on all future runs.
+- Also append it under **today's day-header row** in the current **week tab** (the
+  digest log; create the day header if this is the first write of the day), with
+  `status = New`. Follow the exact columns/format in `references/sheet-format.md`.
 
 ### 8. Email the digest
 - Send an email via Gmail to `notify_email`, formatted per `references/email-format.md`:
@@ -96,9 +111,10 @@ job_id` (if available), `posted_date` (if available).
   jobs today" note; otherwise skip the email.
 
 ### 9. Run summary
-- End with a brief transcript summary: companies scanned, companies that errored,
-  postings found → kept → new, rows appended, email sent. Flag any `# verify` companies
-  whose ATS you confirmed so the config can be updated.
+- End with a brief transcript summary: companies scanned, companies that errored, and the
+  funnel — candidates listed → unseen after Dedup #1 → JDs opened → kept after filter →
+  rows logged — plus whether the email was sent. Flag any `# verify` companies whose ATS
+  you confirmed so the config can be updated.
 
 ## Guardrails
 - **Never fabricate** a posting, URL, or company. If you didn't fetch it, don't log it.
