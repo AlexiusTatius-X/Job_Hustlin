@@ -70,13 +70,17 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
 - **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,
   or a GET-able ATS/API URL) with `formats: ["markdown", {type:"changeTracking",
-  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. Then:
+  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. **Batch it:** collect
+  every due company's listing URL and fetch them together in **one `batch/scrape` call**
+  (`maxConcurrency` left at default) instead of 16–46 separate scrapes — same credits
+  (1/URL), but concurrent and one round-trip. Then, per returned page:
   - `changeStatus == "same"` → the page is identical to the last run: **skip this company
     entirely** (no map, no JD scrapes, no classification). Record it as "unchanged".
   - `changeStatus == "changed"` → take candidate rows only from the **added (`+`) lines**
     of `diff.text` (these are the new postings).
   - `changeStatus == "new"` (first ever) → process the full listing as usual.
   This is server-side state (per team, never expires), so it needs no repo storage.
+  (ATS JSON APIs that need POST/params can't go in the batch — fetch those individually.)
 - Fetch the **listing only** (the cheap part): the ATS JSON API, or Firecrawl `map`
   (with `search:"software engineer"`) / `search` / `scrape` on the careers page. From it
   collect candidate rows of `role_title`, `location` (if shown), `job_url`, `job_id`
@@ -94,11 +98,12 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 - Be resilient: if one company errors, record the error and continue to the next.
 
 ### 4. Open JDs for unseen candidates only, then classify & filter
-- For each **unseen** candidate, get its JD: reuse the inline JD from step 3 if the ATS
-  already returned it; otherwise scrape the detail page with minimal `formats:["markdown"]`,
-  `onlyMainContent:true`, and `maxAge: 604800000` (7-day cache — a JD is immutable once
-  posted, so a cached read is cheaper). **This per-JD scrape — the only expensive step — is
-  now paid only for genuinely new postings.**
+- Gather the **unseen** candidates from all companies, then fetch their JDs in **one
+  `batch/scrape` call** with `formats:["markdown"]`, `onlyMainContent:true`, and
+  `maxAge: 604800000` (7-day cache — a JD is immutable once posted, so a cached read is
+  cheaper). Reuse any inline JD already returned in step 3 (ATS APIs) and exclude those
+  from the batch. **This per-JD scrape — the only expensive step — is now paid only for
+  genuinely new postings**, and batching makes the run concurrent (same 1 credit/URL).
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).
