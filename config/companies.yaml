@@ -1,0 +1,160 @@
+# Target companies for the job-scout skill.
+#
+# Fields per entry:
+#   name         : display name
+#   ats          : applicant-tracking system → picks the reference file
+#                  (workday | greenhouse | lever | ashby | smartrecruiters |
+#                   icims | oracle | successfactors | eightfold | custom)
+#   careers_url  : stable careers landing/search page
+#   notes        : optional; "# verify" ATS is confirmed on first build run via Firecrawl map
+#
+# The skill applies GLOBAL filters from config/profile.md (SDE-family role, 0-2 yrs,
+# on-site India: Bengaluru/Hyderabad/Noida/Gurgaon). Do not add per-company filters here.
+#
+# Adding a company = one line. Unknown/odd ATS → set ats: custom (skill uses ats-generic.md).
+
+big_tech:
+  - name: Google
+    ats: custom
+    careers_url: https://www.google.com/about/careers/applications/jobs/results/
+  - name: Microsoft
+    ats: custom            # Phenom
+    careers_url: https://careers.microsoft.com/
+  - name: Amazon
+    ats: custom
+    careers_url: https://www.amazon.jobs/en/
+  - name: Apple
+    ats: custom
+    careers_url: https://jobs.apple.com/en-in/search
+  - name: Meta
+    ats: custom
+    careers_url: https://www.metacareers.com/jobs/
+  - name: Nvidia
+    ats: workday
+    careers_url: https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite
+  - name: Adobe
+    ats: workday
+    careers_url: https://careers.adobe.com/us/en/search-results
+  - name: Salesforce
+    ats: workday
+    careers_url: https://careers.salesforce.com/en/jobs/
+  - name: Uber
+    ats: custom
+    careers_url: https://www.uber.com/us/en/careers/list/
+  - name: Atlassian
+    ats: custom            # verify
+    careers_url: https://www.atlassian.com/company/careers/all-jobs
+  - name: Oracle
+    ats: oracle
+    careers_url: https://careers.oracle.com/jobs/
+  - name: Cisco
+    ats: custom
+    careers_url: https://jobs.cisco.com/jobs/SearchJobs/
+  - name: Qualcomm
+    ats: workday
+    careers_url: https://careers.qualcomm.com/careers
+  - name: ServiceNow
+    ats: workday
+    careers_url: https://careers.servicenow.com/careers/jobs/
+  - name: SAP Labs
+    ats: successfactors
+    careers_url: https://jobs.sap.com/
+  - name: Intuit
+    ats: workday
+    careers_url: https://jobs.intuit.com/
+  - name: Walmart Global Tech
+    ats: workday
+    careers_url: https://careers.walmart.com/technology
+  - name: PayPal
+    ats: workday
+    careers_url: https://careers.pypl.com/home/
+  - name: Visa
+    ats: custom            # verify
+    careers_url: https://corporate.visa.com/en/jobs.html
+
+product_unicorns:
+  - name: Flipkart
+    ats: custom
+    careers_url: https://www.flipkartcareers.com/
+  - name: Swiggy
+    ats: custom            # verify (Darwinbox/Lever)
+    careers_url: https://careers.swiggy.com/
+  - name: Zomato
+    ats: custom
+    careers_url: https://www.zomato.com/careers
+  - name: PhonePe
+    ats: smartrecruiters    # verify
+    careers_url: https://www.phonepe.com/careers/job-openings/
+  - name: Razorpay
+    ats: lever              # verify
+    careers_url: https://razorpay.com/jobs/
+  - name: CRED
+    ats: lever              # verify
+    careers_url: https://careers.cred.club/
+  - name: Groww
+    ats: lever              # verify
+    careers_url: https://groww.in/careers
+  - name: Zerodha
+    ats: custom
+    careers_url: https://zerodha.com/careers/
+  - name: Meesho
+    ats: custom            # verify
+    careers_url: https://www.meesho.io/jobs
+  - name: Sprinklr
+    ats: lever              # verify
+    careers_url: https://careers.sprinklr.com/
+  - name: Postman
+    ats: greenhouse         # verify
+    careers_url: https://www.postman.com/company/careers/open-positions/
+  - name: Zeta
+    ats: lever              # verify
+    careers_url: https://jobs.zeta.tech/
+  - name: Dream11
+    ats: custom            # verify (Darwinbox)
+    careers_url: https://www.dream11.com/careers
+  - name: Rubrik
+    ats: greenhouse         # verify
+    careers_url: https://www.rubrik.com/company/careers
+  - name: Databricks
+    ats: greenhouse
+    careers_url: https://www.databricks.com/company/careers/open-positions
+  - name: Confluent
+    ats: greenhouse         # verify
+    careers_url: https://careers.confluent.io/
+  - name: MongoDB
+    ats: greenhouse
+    careers_url: https://www.mongodb.com/company/careers/teams/engineering
+
+quant_hft:               # highest CTC; hire few junior SDEs, selective
+  - name: D. E. Shaw
+    ats: custom
+    careers_url: https://www.deshaw.com/careers
+  - name: Tower Research Capital
+    ats: greenhouse         # verify
+    careers_url: https://www.tower-research.com/open-positions/
+  - name: Graviton Research Capital
+    ats: custom
+    careers_url: https://www.gravitontrading.com/careers.html
+  - name: WorldQuant
+    ats: custom            # verify
+    careers_url: https://www.worldquant.com/career-listing/
+  - name: Optiver
+    ats: custom            # verify
+    careers_url: https://optiver.com/working-at-optiver/career-opportunities/
+  - name: Arcesium
+    ats: custom            # verify
+    careers_url: https://www.arcesium.com/careers/
+
+fintech_banks:
+  - name: Goldman Sachs
+    ats: custom
+    careers_url: https://higher.gs.com/roles
+  - name: Morgan Stanley
+    ats: custom
+    careers_url: https://www.morganstanley.com/careers/career-opportunities-search
+  - name: JPMorgan Chase
+    ats: oracle             # verify
+    careers_url: https://careers.jpmorgan.com/global/en/students/programs
+  - name: American Express
+    ats: eightfold          # verify
+    careers_url: https://aexp.eightfold.ai/careers
