@@ -45,3 +45,16 @@ Companies that errored this run: Optiver, WorldQuant
 - Every job must have a working direct **Apply** link.
 - Keep it skimmable: company → bulleted roles → one apply link each. No walls of text.
 - If 0 new jobs and `email_when_empty` is false, do not send.
+
+## Operational failure email
+
+If the mandatory Firecrawl preflight fails (especially when `firecrawl_scrape` is absent),
+do not send a normal or empty job digest. Send one operational email instead:
+
+```text
+Subject: [Job Scout] Run blocked — Firecrawl scrape unavailable — 25 Aug, 09:00 IST
+
+The run stopped before discovery and Sheet writes because the attached Firecrawl
+connector did not expose firecrawl_scrape. Search snippets were not used to classify or
+log jobs. Attach the authenticated Firecrawl Full custom connector and retry the run.
+```

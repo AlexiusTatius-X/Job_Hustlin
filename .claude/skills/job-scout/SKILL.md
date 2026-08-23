@@ -15,7 +15,7 @@ Scout top companies' career portals for **new entry-level software-developer rol
 India**, log them to a Google Sheet, and email a digest. Designed to run **autonomously**
 from a Claude Routine three times a day.
 
-You have three connectors available: **Firecrawl** (web search/scrape/extract),
+You have three connectors available: **Firecrawl Full** (authenticated web search/scrape/map),
 **Composio** (Google Sheets state + log through the active `Job_Hustlin` connection),
 and **Gmail** (digest email). Use only these plus repo files. Never invent jobs — every
 row must come from a real, currently-open posting you actually fetched.
@@ -36,6 +36,14 @@ processed in parallel batches if that speeds things up.
   `run_time` (HH:MM).
 - Compute **this week's Monday** = the most recent Monday ≤ `today`.
 - Compute the week tab name (see `references/sheet-format.md` → "Week tab naming").
+- **Mandatory Firecrawl capability preflight:** inspect the attached Firecrawl connector's
+  tool list before any Sheet mutation or job discovery. `firecrawl_scrape` is required.
+  `firecrawl_search` alone is insufficient because snippets cannot prove JD content,
+  experience, or on-site location. If `firecrawl_scrape` is missing:
+  - Stop the job-discovery workflow immediately; do not fall back to snippet-only decisions.
+  - Do not add or update `Seen`, weekly job rows, or send a normal job digest.
+  - Send the operational failure email defined in `references/email-format.md` when Gmail
+    is available, then end with a blocked-run summary naming the missing capability.
 
 ### 2. Load dedup memory (the `Seen` tab)
 - Use only Composio's **Google Sheets** tools and open the spreadsheet by `sheet_id` from
@@ -74,10 +82,9 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
 - **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,
   or a GET-able ATS/API URL) with `formats: ["markdown", {type:"changeTracking",
-  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. **Batch it:** collect
-  every due company's listing URL and fetch them together in **one `batch/scrape` call**
-  (`maxConcurrency` left at default) instead of 16–46 separate scrapes — same credits
-  (1/URL), but concurrent and one round-trip. Then, per returned page:
+  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. If the connector
+  exposes batch scrape, batch compatible listing URLs; otherwise issue independent
+  `firecrawl_scrape` calls concurrently when supported. Then, per returned page:
   - `changeStatus == "same"` → the page is identical to the last run: **skip this company
     entirely** (no map, no JD scrapes, no classification). Record it as "unchanged".
   - `changeStatus == "changed"` → take candidate rows only from the **added (`+`) lines**
@@ -102,12 +109,12 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 - Be resilient: if one company errors, record the error and continue to the next.
 
 ### 4. Open JDs for unseen candidates only, then classify & filter
-- Gather the **unseen** candidates from all companies, then fetch their JDs in **one
-  `batch/scrape` call** with `formats:["markdown"]`, `onlyMainContent:true`, and
+- Gather the **unseen** candidates from all companies, then fetch their JDs with
+  `firecrawl_scrape` using `formats:["markdown"]`, `onlyMainContent:true`, and
   `maxAge: 604800000` (7-day cache — a JD is immutable once posted, so a cached read is
-  cheaper). Reuse any inline JD already returned in step 3 (ATS APIs) and exclude those
-  from the batch. **This per-JD scrape — the only expensive step — is now paid only for
-  genuinely new postings**, and batching makes the run concurrent (same 1 credit/URL).
+  cheaper). Reuse any inline JD already returned in step 3 (ATS APIs). Batch or run these
+  calls concurrently only when the exposed tools support it. **This per-JD scrape — the
+  only expensive step — is paid only for genuinely new postings.**
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).
@@ -152,6 +159,8 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 
 ## Guardrails
 - **Never fabricate** a posting, URL, or company. If you didn't fetch it, don't log it.
+- Never classify, log, or email a job from search-result snippets alone. A kept job must
+  have full JD content fetched by `firecrawl_scrape` or returned inline by a trusted ATS API.
 - Respect `max_new_jobs_emailed` and `max_companies_per_run` from `profile.md`.
 - Keep all mutable state in the Google Sheet — the repo is read-only across runs.
 - Through Composio, access only Google Sheets, only the `sheet_id` in `profile.md`, and

@@ -86,8 +86,11 @@ the JD **inline** with the listing — zero extra JD scrapes. Always try the API
 (verified: 36 URLs → 36 credits). It gives **no credit discount**, but it runs the URLs
 concurrently in one job and accepts all scrape options (`changeTracking`, `maxAge`,
 `onlyMainContent`). Use it to cut tool-call round-trips and latency:
-- Batch all **due listing pages** into one call with the `changeTracking` git-diff format.
-- Batch all **unseen JD** detail pages into one call with `maxAge`.
+- If the connector exposes batch scrape, batch all **due listing pages** with the
+  `changeTracking` git-diff format.
+- If it exposes batch scrape, batch all **unseen JD** detail pages with `maxAge`.
+- Otherwise use independent `firecrawl_scrape` calls, concurrently when the client
+  supports parallel tool execution. Missing batch support is not a run blocker.
 Only a throughput win — the credit total is unchanged, so tiering + change-tracking remain
 the real savers.
 

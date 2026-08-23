@@ -30,7 +30,6 @@ Gmail connector ──► email digest of new jobs
 | `config/profile.md` | Search criteria, notify email, sheet URL, week anchor |
 | `config/companies.yaml` | Target companies → ATS type + careers URL |
 | `routine-prompt.md` | Paste-in prompt for `claude.ai/code/routines` |
-| `.mcp.json` | Project-scope Firecrawl MCP declaration (optional) |
 | `docs/job-scout-system-reference.md` | Complete architecture, workflow, configuration, operations, and runbook |
 | `docs/` | Reference docs (design plan, Firecrawl reference) — not used at runtime |
 
@@ -38,17 +37,20 @@ Gmail connector ──► email digest of new jobs
 
 1. **Connectors** (add at `claude.ai/customize/connectors`, all on the same Google account
    that owns the state sheet):
-   - **Firecrawl** — remote MCP `https://mcp.firecrawl.dev/v2/mcp` (needs a Firecrawl API key)
+       - **Firecrawl Full** — add a custom connector with
+             `https://mcp.firecrawl.dev/v2/mcp-oauth`, complete browser sign-in, and verify that
+             `firecrawl_scrape` is exposed. Do not use the Claude Directory `Firecrawl` connector;
+             it points to `mcp-search` and is search-only.
    - **Gmail** — sends the digest
-      - **Composio** — custom connector URL `https://connect.composio.dev/mcp`; connect Google
-        Sheets with alias `Job_Hustlin` so it can read/write the state + log sheet
+       - **Composio** — custom connector URL `https://connect.composio.dev/mcp`; connect Google
+             Sheets with alias `Job_Hustlin` so it can read/write the state + log sheet
 2. **GitHub**: push this repo; install the Claude GitHub app on it (or run `/web-setup`).
 3. **Plan**: Claude Pro/Max/Team/Enterprise with Claude Code on the web enabled.
 4. **State sheet**: the pinned Google Sheet in `config/profile.md` must exist and be
-      editable by the Google account connected to Composio.
+   editable by the Google account connected to Composio.
 5. **Routine**: at `claude.ai/code/routines` → New routine → select this repo → include
-      the Firecrawl + Gmail + Composio connectors → paste `routine-prompt.md` → add Schedule
-      triggers at **08:00 / 14:00 / 20:00 IST** → Create.
+   the Firecrawl Full + Gmail + Composio connectors → paste `routine-prompt.md` → add
+   Schedule triggers at **08:00 / 14:00 / 20:00 IST** → Create.
 
 Test with **Run now**, then read the session transcript to confirm the flow.
 
@@ -56,7 +58,7 @@ Test with **Run now**, then read the session transcript to confirm the flow.
 
 - State lives in Google Sheets, **not** the repo: a routine run re-clones the default
   branch each time and can't persist files back for the next run.
-- Composio is configured as an account-level Claude custom connector; `.mcp.json` remains
-      Firecrawl-only to avoid creating a duplicate Composio connection in repository sessions.
+- Firecrawl Full and Composio are account-level Claude custom connectors; no project-level
+      Firecrawl MCP declaration is kept, avoiding duplicate or unauthenticated tool surfaces.
 - Adding a company = one line in `config/companies.yaml`. If its ATS isn't covered by an
   `ats-*.md` reference, the skill falls back to `ats-generic.md` (Firecrawl search/map).

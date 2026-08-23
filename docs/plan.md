@@ -12,7 +12,9 @@ Most MNCs run on a handful of applicant-tracking systems: Workday (`myworkdayjob
 - Schedule min interval = 1 hour; daily run cap applies; times convert local → UTC.
 - **Key constraint (read-only per run)**: each run re-clones the *default branch* and pushes only to `claude/`-prefixed branches → files written during a run are **NOT visible next run**. Repo = static inputs only; mutable state lives in Google Sheets.
 - Firecrawl MCP connector traffic routes via Anthropic's servers → **no network-allowlist edits** needed.
-- Firecrawl remote MCP: `https://mcp.firecrawl.dev/v2/mcp` — added at `claude.ai/customize/connectors`.
+- Authenticated Firecrawl Full custom connector:
+	`https://mcp.firecrawl.dev/v2/mcp-oauth` — added and authorized at
+	`claude.ai/customize/connectors`. The Directory connector is search-only and unsuitable.
 - Firecrawl tools: `search`, `map`, `scrape`, `extract` (structured), `interact`, `monitor`.
 
 ## How the skill loads (progressive disclosure)
@@ -56,7 +58,6 @@ Rule-based relevance score, not a personal-résumé match:
 │   └── companies.yaml           # company → ATS type + careers URL
 ├── docs/                        # reference only (plan.md, firecrawl-reference.md)
 ├── routine-prompt.md            # paste-in prompt for claude.ai/code/routines
-├── .mcp.json                    # project-scope Firecrawl MCP (optional)
 └── README.md
 ```
 Static inputs only (read-only per run). Mutable state → Google Sheets.
@@ -81,7 +82,8 @@ Static inputs only (read-only per run). Mutable state → Google Sheets.
 Compiled in `config/companies.yaml`: big-tech, product unicorns, quant/HFT, fintech/banks. ATS type per company; `# verify` entries confirmed on first build run via Firecrawl map.
 
 ## Prerequisites (user, at build time)
-1. Firecrawl API key + add Firecrawl MCP connector on claude.ai.
+1. Add and authorize the Firecrawl Full custom connector on claude.ai; verify
+	`firecrawl_scrape` is exposed.
 2. Add **Gmail** + **Composio** connectors; connect Google Sheets in Composio using the
 	same Google account that owns the sheet (active alias: `Job_Hustlin`).
 3. GitHub repo + install Claude GitHub app / `/web-setup`.
@@ -92,7 +94,7 @@ Compiled in `config/companies.yaml`: big-tech, product unicorns, quant/HFT, fint
 2. **Config** — `config/profile.md` + `config/companies.yaml`.
 3. **References** — `references/ats-*.md`, `matching-rubric.md`, `sheet-format.md`, `email-format.md`.
 4. **The skill** — `.claude/skills/job-scout/SKILL.md`: `search → map → scrape → extract → classify/filter → dedup(vs Sheet) → rank → append(Sheet) → email` flow.
-5. **Create routine** — at `claude.ai/code/routines`: select repo, include Firecrawl + Gmail + Composio connectors, paste `routine-prompt.md`, schedule 08:00 / 14:00 / 20:00 IST.
+5. **Create routine** — at `claude.ai/code/routines`: select repo, include Firecrawl Full + Gmail + Composio connectors, paste `routine-prompt.md`, schedule 08:00 / 14:00 / 20:00 IST.
 6. **Test & iterate** — "Run now"; review transcript; refine.
 
 ## Verification
