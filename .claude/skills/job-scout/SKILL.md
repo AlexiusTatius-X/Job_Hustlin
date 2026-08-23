@@ -29,13 +29,18 @@ row must come from a real, currently-open posting you actually fetched.
 ## Workflow (per run)
 
 Run these steps in order. Work company-by-company; independent companies may be
-processed in parallel batches if that speeds things up.
+processed in bounded parallel waves, subject to `firecrawl_max_concurrency` in
+`profile.md`.
 
 ### 1. Set up run context
 - Compute **now** in the `timezone` from `profile.md` (IST). Record `today` (date) and
   `run_time` (HH:MM).
 - Compute **this week's Monday** = the most recent Monday ≤ `today`.
 - Compute the week tab name (see `references/sheet-format.md` → "Week tab naming").
+- Read `firecrawl_max_concurrency` from `profile.md`. Treat it as a hard upper bound
+  across all Firecrawl tools: never have more than that many Firecrawl calls in flight.
+  With the current value `2`, launch at most two calls, wait for both to finish or fail,
+  then launch the next wave. Do not submit all due companies at once.
 - **Mandatory Firecrawl capability preflight:** inspect the attached Firecrawl connector's
   tool list before any Sheet mutation or job discovery. `firecrawl_scrape` is required.
   `firecrawl_search` alone is insufficient because snippets cannot prove JD content,
@@ -84,8 +89,9 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   or a GET-able ATS/API URL) with `formats:["markdown","changeTracking"]` and
   `onlyMainContent:true`. The Firecrawl MCP schema does not expose change-tracking mode
   or tag arguments; do not invent or pass them. If the connector exposes batch scrape,
-  batch compatible listing URLs; otherwise issue independent `firecrawl_scrape` calls
-  concurrently when supported. Then, per returned page:
+  set its concurrency no higher than `firecrawl_max_concurrency`; otherwise issue
+  independent `firecrawl_scrape` calls in waves no larger than that limit. Wait for the
+  current wave to finish before starting another. Then, per returned page:
   - `changeStatus == "same"` → the page is identical to the last run: **skip this company
     entirely** (no map, no JD scrapes, no classification). Record it as "unchanged".
   - `changeStatus == "changed"` → process the full current listing, then dedup every
@@ -114,8 +120,9 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   `firecrawl_scrape` using `formats:["markdown"]`, `onlyMainContent:true`, and
   `maxAge: 604800000` (7-day cache — a JD is immutable once posted, so a cached read is
   cheaper). Reuse any inline JD already returned in step 3 (ATS APIs). Batch or run these
-  calls concurrently only when the exposed tools support it. **This per-JD scrape — the
-  only expensive step — is paid only for genuinely new postings.**
+  calls in waves no larger than `firecrawl_max_concurrency`, waiting for each wave to
+  finish before launching the next. **This per-JD scrape — the only expensive step — is
+  paid only for genuinely new postings.**
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).
@@ -172,3 +179,6 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 - Do not email anyone other than `notify_email`.
 - If Firecrawl returns an error/`jobId`, retry once; if it still fails, skip that company
   and record it. Do not guess results.
+- If Firecrawl returns HTTP 429, honor `Retry-After` when provided and retry that call
+  once without increasing concurrency. Do not replace a rate-limited call with extra
+  search variants, because that creates more load.

@@ -98,6 +98,19 @@ concurrently in one job and accepts all scrape options (`changeTracking`, `maxAg
 Only a throughput win — the credit total is unchanged, so tiering + change-tracking remain
 the real savers.
 
+### Concurrency ceiling
+
+Always obey `firecrawl_max_concurrency` from `config/profile.md`. The current Firecrawl
+plan allows **2 concurrent browsers**, so use waves of at most two Firecrawl calls:
+
+```text
+start calls 1–2 → wait for both → start calls 3–4 → wait → continue
+```
+
+Do not launch all due companies at once. Requests above the plan ceiling queue, and queue
+time counts toward request timeout. If a call returns HTTP 429, honor `Retry-After` when
+present and retry once at the same or lower concurrency.
+
 ## 7. Avoid the credit-expensive features
 
 - **`/agent`** (autonomous extraction) can spend up to 2,500 credits per call — do **not**

@@ -69,5 +69,6 @@ Components: title-match strength, experience fit, location priority, freshness.
 ## Per-run limits (politeness / cost control)
 
 - **max_companies_per_run:** `all`   # ~45; reduce if you hit Firecrawl/route limits
+- **firecrawl_max_concurrency:** `2`  # plan limit; never have more than 2 Firecrawl calls in flight
 - **max_new_jobs_emailed:** `40`
 - **freshness_days:** `14`            # ignore postings clearly older than this when a date is available

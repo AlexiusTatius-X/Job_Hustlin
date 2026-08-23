@@ -200,6 +200,7 @@ update both `sheet_id` and `sheet_url` in `config/profile.md`.
 | Setting | Current value |
 |---|---|
 | `max_companies_per_run` | `all` |
+| `firecrawl_max_concurrency` | 2 |
 | `max_new_jobs_emailed` | 40 |
 | `freshness_days` | 14 |
 
@@ -274,6 +275,8 @@ run proves the real ATS or endpoint, update the registry and remove the marker.
 6. Inspect the Firecrawl connector tool list. If `firecrawl_scrape` is missing, stop
   before Sheet mutation or discovery, send only an operational failure email, and report
   the blocked run. Never degrade to snippet-only classification.
+7. Enforce `firecrawl_max_concurrency` as a hard cross-tool ceiling. At the current limit
+  of two, process Firecrawl work in waves of at most two calls and await each wave.
 
 ### Step 2: Load durable deduplication state
 
@@ -289,7 +292,7 @@ run proves the real ATS or endpoint, update the registry and remove the marker.
 
 1. Select the company-specific ATS playbook.
 2. Batch compatible listing-page scrapes only if a batch tool is exposed; otherwise run
-  independent `firecrawl_scrape` calls concurrently when supported.
+  independent `firecrawl_scrape` calls in waves bounded by `firecrawl_max_concurrency`.
 3. Request Firecrawl with `formats: ["markdown", "changeTracking"]`. The authenticated
   MCP schema does not expose mode or tag parameters.
 4. If status is `same`, skip the company entirely.
@@ -519,6 +522,13 @@ Use:
 
 Batching improves latency and reduces tool round trips; it does **not** reduce per-URL
 credits. Use it when exposed; otherwise independent `firecrawl_scrape` calls remain valid.
+
+### Concurrency limit
+
+The current Firecrawl plan supports two concurrent browsers. Never have more than two
+Firecrawl operations in flight. Process listing and JD calls in waves of two. Calls above
+the limit may queue, and queue time counts against request timeout. Honor `Retry-After`
+on HTTP 429 and retry once without raising concurrency.
 
 ### Payload minimization
 
@@ -788,6 +798,8 @@ Prefer this order:
 - Job postings can be removed between discovery and detail fetch.
 - Company sites may block or throttle automated access.
 - Batch scrape improves speed but not per-URL Firecrawl credit cost.
+- The plan concurrency ceiling is two, so large runs take multiple waves; this affects
+  wall-clock time but not matching correctness.
 - Claude's Directory Firecrawl connector is search-only and cannot satisfy JD-level
   verification; the custom OAuth connector is required.
 - The weekly log is optimized for human browsing, not analytics at scale.

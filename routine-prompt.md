@@ -20,6 +20,9 @@ Load and follow the skill at `.claude/skills/job-scout/SKILL.md` exactly. Read
 workflow for this run:
 
 1. Determine the current date/time in IST and this week's Monday.
+   Treat `firecrawl_max_concurrency` from `config/profile.md` as a hard limit across all
+   Firecrawl calls. With the current value 2, run Firecrawl work in waves of at most two
+   in-flight calls and wait for each wave before starting the next.
    Before any Sheet mutation or discovery, verify that the attached Firecrawl connector
    exposes `firecrawl_scrape`. If it does not, stop: do not use search snippets, do not
    log jobs, and send only the operational failure email defined in `email-format.md`.
