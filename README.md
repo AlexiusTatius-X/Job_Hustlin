@@ -37,7 +37,7 @@ Gmail connector ──► email digest of new jobs
 
 1. **Connectors** (add at `claude.ai/customize/connectors`, all on the same Google account
    that owns the state sheet):
-       - **Firecrawl Full** — add a custom connector with
+      - **Firecrawl Full Access** — add a custom connector with
              `https://mcp.firecrawl.dev/v2/mcp-oauth`, complete browser sign-in, and verify that
              `firecrawl_scrape` is exposed. Do not use the Claude Directory `Firecrawl` connector;
              it points to `mcp-search` and is search-only.
@@ -49,7 +49,7 @@ Gmail connector ──► email digest of new jobs
 4. **State sheet**: the pinned Google Sheet in `config/profile.md` must exist and be
    editable by the Google account connected to Composio.
 5. **Routine**: at `claude.ai/code/routines` → New routine → select this repo → include
-   the Firecrawl Full + Gmail + Composio connectors → paste `routine-prompt.md` → add
+      the Firecrawl Full Access + Gmail + Composio connectors → paste `routine-prompt.md` → add
    Schedule triggers at **08:00 / 14:00 / 20:00 IST** → Create.
 
 Test with **Run now**, then read the session transcript to confirm the flow.
@@ -58,7 +58,7 @@ Test with **Run now**, then read the session transcript to confirm the flow.
 
 - State lives in Google Sheets, **not** the repo: a routine run re-clones the default
   branch each time and can't persist files back for the next run.
-- Firecrawl Full and Composio are account-level Claude custom connectors; no project-level
+- Firecrawl Full Access and Composio are account-level Claude custom connectors; no project-level
       Firecrawl MCP declaration is kept, avoiding duplicate or unauthenticated tool surfaces.
 - Adding a company = one line in `config/companies.yaml`. If its ATS isn't covered by an
   `ats-*.md` reference, the skill falls back to `ats-generic.md` (Firecrawl search/map).

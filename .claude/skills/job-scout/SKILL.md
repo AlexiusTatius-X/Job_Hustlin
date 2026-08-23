@@ -15,7 +15,7 @@ Scout top companies' career portals for **new entry-level software-developer rol
 India**, log them to a Google Sheet, and email a digest. Designed to run **autonomously**
 from a Claude Routine three times a day.
 
-You have three connectors available: **Firecrawl Full** (authenticated web search/scrape/map),
+You have three connectors available: **Firecrawl Full Access** (authenticated web search/scrape/map),
 **Composio** (Google Sheets state + log through the active `Job_Hustlin` connection),
 and **Gmail** (digest email). Use only these plus repo files. Never invent jobs — every
 row must come from a real, currently-open posting you actually fetched.

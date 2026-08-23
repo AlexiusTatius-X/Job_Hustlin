@@ -126,7 +126,7 @@ for `Seen`.
 | Repository | `AlexiusTatius-X/Job_Hustlin` |
 | Initial validation model | Opus 4.7 |
 | Planned steady-state model | Sonnet 5, after validation if quality is acceptable |
-| Connectors | Composio, Firecrawl Full, Gmail |
+| Connectors | Composio, Firecrawl Full Access, Gmail |
 | Cron expression | `30 2,8,14 * * *` |
 | Cron timezone basis | UTC |
 | IST run times | 08:00, 14:00, 20:00 |
@@ -150,9 +150,9 @@ Claude may stagger runs by a few minutes. The tier gate intentionally uses the b
 
 - The Claude Directory connector named **Firecrawl** points to
   `https://mcp.firecrawl.dev/v2/mcp-search` and exposes search/research tools only.
-- The workflow requires a custom connector named **Firecrawl Full** using
+- The workflow requires a custom connector named **Firecrawl Full Access** using
   `https://mcp.firecrawl.dev/v2/mcp-oauth`.
-- Firecrawl Full must be authorized interactively before attaching it to the Routine.
+- Firecrawl Full Access must be authorized interactively before attaching it to the Routine.
 - `firecrawl_scrape` is mandatory; map and batch operations are optional optimizations.
 - No `.mcp.json` is kept in the repository, avoiding a second keyless or unauthenticated
   Firecrawl server alongside the account-level connector.
@@ -629,7 +629,7 @@ the top 40 and state that the remainder is in the Sheet.
 
 The routine includes exactly:
 
-- Firecrawl Full
+- Firecrawl Full Access
 - Gmail
 - Composio
 
@@ -693,7 +693,7 @@ The first run is expected to be heavier because:
 Validate the following after **Run now**:
 
 1. The repository and skill load successfully.
-2. Firecrawl Full exposes `firecrawl_scrape` and passes the mandatory preflight.
+2. Firecrawl Full Access exposes `firecrawl_scrape` and passes the mandatory preflight.
 3. The correct tier set is reported for the actual IST timestamp.
 4. Composio accesses only the configured spreadsheet.
 5. `Seen` is created with the correct headers.
@@ -853,7 +853,7 @@ A run is successful when:
 ## 24. Current Next Step
 
 Replace the search-only Directory Firecrawl connector on the Claude Routine with the
-authenticated Firecrawl Full custom connector, clean up the 10 snippet-only jobs logged by
+authenticated Firecrawl Full Access custom connector, clean up the 10 snippet-only jobs logged by
 the degraded 23 Aug 2026 22:15 IST run, then run the Routine again. Verify that
 `firecrawl_scrape` passes preflight and that JDs opened is greater than zero when unseen
 candidates exist. After validation, set `email_when_empty` to `false` and consider moving

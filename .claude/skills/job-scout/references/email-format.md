@@ -56,5 +56,5 @@ Subject: [Job Scout] Run blocked — Firecrawl scrape unavailable — 25 Aug, 09
 
 The run stopped before discovery and Sheet writes because the attached Firecrawl
 connector did not expose firecrawl_scrape. Search snippets were not used to classify or
-log jobs. Attach the authenticated Firecrawl Full custom connector and retry the run.
+log jobs. Attach the authenticated Firecrawl Full Access custom connector and retry the run.
 ```
