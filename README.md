@@ -16,7 +16,7 @@ Firecrawl MCP ──► search / map / scrape / extract each company's careers s
       ▼
 classify + filter (SDE, 0–2 yrs, on-site India) ──► rank (rule-based fit)
       ▼
-Google Sheets connector ──► dedup vs existing rows ──► append new jobs (weekly tab)
+Composio (Google Sheets) ──► dedup vs Seen ──► append new jobs (weekly tab)
       ▼
 Gmail connector ──► email digest of new jobs
 ```
@@ -39,14 +39,15 @@ Gmail connector ──► email digest of new jobs
    that owns the state sheet):
    - **Firecrawl** — remote MCP `https://mcp.firecrawl.dev/v2/mcp` (needs a Firecrawl API key)
    - **Gmail** — sends the digest
-   - **Google Sheets** — reads/writes the state + log sheet
+      - **Composio** — custom connector URL `https://connect.composio.dev/mcp`; connect Google
+        Sheets with alias `Job_Hustlin` so it can read/write the state + log sheet
 2. **GitHub**: push this repo; install the Claude GitHub app on it (or run `/web-setup`).
 3. **Plan**: Claude Pro/Max/Team/Enterprise with Claude Code on the web enabled.
 4. **State sheet**: the pinned Google Sheet in `config/profile.md` must exist and be
-   accessible by the Google account behind the Sheets connector.
+      editable by the Google account connected to Composio.
 5. **Routine**: at `claude.ai/code/routines` → New routine → select this repo → include
-   the Firecrawl + Gmail + Google Sheets connectors → paste `routine-prompt.md` → add a
-   Schedule trigger (3× daily, IST times of your choice) → Create.
+      the Firecrawl + Gmail + Composio connectors → paste `routine-prompt.md` → add Schedule
+      triggers at **08:00 / 14:00 / 20:00 IST** → Create.
 
 Test with **Run now**, then read the session transcript to confirm the flow.
 
@@ -54,5 +55,7 @@ Test with **Run now**, then read the session transcript to confirm the flow.
 
 - State lives in Google Sheets, **not** the repo: a routine run re-clones the default
   branch each time and can't persist files back for the next run.
+- Composio is configured as an account-level Claude custom connector; `.mcp.json` remains
+      Firecrawl-only to avoid creating a duplicate Composio connection in repository sessions.
 - Adding a company = one line in `config/companies.yaml`. If its ATS isn't covered by an
   `ats-*.md` reference, the skill falls back to `ats-generic.md` (Firecrawl search/map).

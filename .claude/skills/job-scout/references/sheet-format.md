@@ -1,7 +1,27 @@
 # Google Sheet format
 
 The spreadsheet (id in `config/profile.md`) is the state store + running log. It is the
-**only** place mutable state lives. Use the Google Sheets connector.
+**only** place mutable state lives. Use the **Composio** connector's Google Sheets tools
+through the already-active connection alias `Job_Hustlin`.
+
+## Composio tool routing
+
+Composio Connect exposes meta-tools. If the Google Sheets tools are not direct, first use
+`COMPOSIO_SEARCH_TOOLS` and `COMPOSIO_GET_TOOL_SCHEMAS`, then execute them with
+`COMPOSIO_MULTI_EXECUTE_TOOL`. Use only these Google Sheets operations:
+
+| Need | Composio Google Sheets tool |
+|---|---|
+| List/verify tabs | `GOOGLESHEETS_GET_SHEET_NAMES` |
+| Create a missing tab | `GOOGLESHEETS_ADD_SHEET` with `force_unique: false` |
+| Read the dedup column | `GOOGLESHEETS_VALUES_GET` on bounded range `'Seen'!A2:A50000` |
+| Write headers/specific cells | `GOOGLESHEETS_VALUES_UPDATE` |
+| Idempotently record seen jobs | `GOOGLESHEETS_UPSERT_ROWS`, key column `job_url` |
+| Append weekly log rows | `GOOGLESHEETS_SPREADSHEETS_VALUES_APPEND` |
+
+Always pass the exact `sheet_id` from `config/profile.md`. Never search for or touch a
+different spreadsheet. Do not use delete/clear tools, Composio remote shell/workbench,
+or tools from any other Composio app.
 
 The spreadsheet has **two kinds of tabs**, each with one job:
 
@@ -30,8 +50,9 @@ Example rows:
 
 - **Dedup is a single-column scan:** "is this URL anywhere in column A?" Company is just a
   value in column C, so filtering column C still shows "all Microsoft jobs" when you want.
-- **Append-only:** every newly logged job adds one row here (see the skill's step 7). It
-  then gets skipped on all future runs.
+- **Logically append-only:** use `GOOGLESHEETS_UPSERT_ROWS` with headers
+  `job_url, job_id, company, role_title, first_seen`, `keyColumn: job_url`, and
+  `strictMode: true`. A retry updates the same URL instead of creating a duplicate.
 - This tab is the reason a still-open job from weeks ago is never re-logged — it spans all
   time, unlike the weekly digest tabs.
 
@@ -108,3 +129,5 @@ Before the first job appended for a given date, insert a full-width row (merged 
 - If the connector supports cell background color, lightly shade day-header rows (e.g.
   alternate soft colors per day). This is optional — the text separator is what matters.
 - Freeze rows 1–2 if supported.
+- If merging is unavailable, place the banner/day-header text in column A and leave the
+  remaining cells in that row blank; formatting must never block logging.

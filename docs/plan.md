@@ -75,14 +75,15 @@ Static inputs only (read-only per run). Mutable state → Google Sheets.
 - Per-day color shading = nice-to-have (depends on connector); day-header row is the reliable separator.
 
 ## Cadence — 3×/day (CONFIRMED)
-- IST. Exact run times set manually by user in the routine UI. (Routine min interval = 1h; daily cap applies.)
+- IST at **08:00 / 14:00 / 20:00**, set manually in the routine UI. (Routine min interval = 1h; daily cap applies.)
 
 ## Company list — ~45 (v1 approved)
 Compiled in `config/companies.yaml`: big-tech, product unicorns, quant/HFT, fintech/banks. ATS type per company; `# verify` entries confirmed on first build run via Firecrawl map.
 
 ## Prerequisites (user, at build time)
 1. Firecrawl API key + add Firecrawl MCP connector on claude.ai.
-2. Add **Gmail** + **Google Sheets** connectors (same Google account that owns the sheet).
+2. Add **Gmail** + **Composio** connectors; connect Google Sheets in Composio using the
+	same Google account that owns the sheet (active alias: `Job_Hustlin`).
 3. GitHub repo + install Claude GitHub app / `/web-setup`.
 4. Confirm Pro/Max/Team/Enterprise + Claude Code on the web enabled.
 
@@ -91,7 +92,7 @@ Compiled in `config/companies.yaml`: big-tech, product unicorns, quant/HFT, fint
 2. **Config** — `config/profile.md` + `config/companies.yaml`.
 3. **References** — `references/ats-*.md`, `matching-rubric.md`, `sheet-format.md`, `email-format.md`.
 4. **The skill** — `.claude/skills/job-scout/SKILL.md`: `search → map → scrape → extract → classify/filter → dedup(vs Sheet) → rank → append(Sheet) → email` flow.
-5. **Create routine** — at `claude.ai/code/routines`: select repo, include Firecrawl + Gmail + Sheets connectors, paste `routine-prompt.md`, 3×/day IST schedule (set manually).
+5. **Create routine** — at `claude.ai/code/routines`: select repo, include Firecrawl + Gmail + Composio connectors, paste `routine-prompt.md`, schedule 08:00 / 14:00 / 20:00 IST.
 6. **Test & iterate** — "Run now"; review transcript; refine.
 
 ## Verification
