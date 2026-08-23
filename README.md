@@ -31,6 +31,7 @@ Gmail connector ──► email digest of new jobs
 | `config/companies.yaml` | Target companies → ATS type + careers URL |
 | `routine-prompt.md` | Paste-in prompt for `claude.ai/code/routines` |
 | `.mcp.json` | Project-scope Firecrawl MCP declaration (optional) |
+| `docs/job-scout-system-reference.md` | Complete architecture, workflow, configuration, operations, and runbook |
 | `docs/` | Reference docs (design plan, Firecrawl reference) — not used at runtime |
 
 ## One-time setup
