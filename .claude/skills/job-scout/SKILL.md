@@ -81,14 +81,15 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   - anything else (`custom`, `oracle`, `successfactors`, `smartrecruiters`, `ashby`,
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
 - **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,
-  or a GET-able ATS/API URL) with `formats: ["markdown", {type:"changeTracking",
-  modes:["git-diff"], tag:"jobscout"}]` and `onlyMainContent:true`. If the connector
-  exposes batch scrape, batch compatible listing URLs; otherwise issue independent
-  `firecrawl_scrape` calls concurrently when supported. Then, per returned page:
+  or a GET-able ATS/API URL) with `formats:["markdown","changeTracking"]` and
+  `onlyMainContent:true`. The Firecrawl MCP schema does not expose change-tracking mode
+  or tag arguments; do not invent or pass them. If the connector exposes batch scrape,
+  batch compatible listing URLs; otherwise issue independent `firecrawl_scrape` calls
+  concurrently when supported. Then, per returned page:
   - `changeStatus == "same"` → the page is identical to the last run: **skip this company
     entirely** (no map, no JD scrapes, no classification). Record it as "unchanged".
-  - `changeStatus == "changed"` → take candidate rows only from the **added (`+`) lines**
-    of `diff.text` (these are the new postings).
+  - `changeStatus == "changed"` → process the full current listing, then dedup every
+    candidate URL against `Seen` before opening JDs.
   - `changeStatus == "new"` (first ever) → process the full listing as usual.
   This is server-side state (per team, never expires), so it needs no repo storage.
   (ATS JSON APIs that need POST/params can't go in the batch — fetch those individually.)

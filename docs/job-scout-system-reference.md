@@ -290,7 +290,8 @@ run proves the real ATS or endpoint, update the registry and remove the marker.
 1. Select the company-specific ATS playbook.
 2. Batch compatible listing-page scrapes only if a batch tool is exposed; otherwise run
   independent `firecrawl_scrape` calls concurrently when supported.
-3. Request Firecrawl `changeTracking` in `git-diff` mode with tag `jobscout`.
+3. Request Firecrawl with `formats: ["markdown", "changeTracking"]`. The authenticated
+  MCP schema does not expose mode or tag parameters.
 4. If status is `same`, skip the company entirely.
 5. If status is `new`, process the complete listing.
 6. If status is `changed`, prioritize added diff lines as new candidates.
@@ -492,14 +493,15 @@ Use:
 {
   "formats": [
     "markdown",
-    {"type": "changeTracking", "modes": ["git-diff"], "tag": "jobscout"}
+    "changeTracking"
   ],
   "onlyMainContent": true
 }
 ```
 
-Basic and git-diff tracking have no additional change-tracking charge beyond the scrape.
-Do not use JSON change tracking for this workflow.
+Basic tracking has no additional change-tracking charge beyond the scrape. The MCP schema
+rejects unsupported REST-level mode/tag fields. When a page is `changed`, process its full
+current listing and rely on `Seen` to discard old URLs. Do not use JSON change tracking.
 
 ### JD cache
 
@@ -813,7 +815,7 @@ Prefer this order:
 ### Too many Firecrawl credits
 
 1. Confirm tier gating selected the expected company count.
-2. Confirm listing change tracking is present and consistently tagged `jobscout`.
+2. Confirm listing scrapes request both Markdown and basic `changeTracking` formats.
 3. Confirm URL dedup happens before JD fetch.
 4. Confirm ATS APIs are used where possible.
 5. Confirm only unseen JDs are batched.

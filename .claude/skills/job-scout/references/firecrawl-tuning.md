@@ -6,7 +6,7 @@ Firecrawl v2 docs (change-tracking billing, scrape `maxAge` cache, `/map`).
 
 ## 1. `changeTracking` on the LISTING — the steady-state saver (FREE)
 
-Basic and `git-diff` change tracking cost **no extra credits** (only `json` mode costs 5).
+Basic change tracking costs **no extra credits** (JSON mode costs extra but is not used).
 Snapshots are stored **server-side by Firecrawl, scoped to your team, and never expire** —
 so this works even though the routine's repo is read-only across runs (no state to keep).
 
@@ -15,10 +15,14 @@ When you fetch a company's listing (careers page or a GET-able ATS JSON/API URL)
 ```json
 {
   "url": "<careers_or_api_url>",
-  "formats": ["markdown", { "type": "changeTracking", "modes": ["git-diff"], "tag": "jobscout" }],
+  "formats": ["markdown", "changeTracking"],
   "onlyMainContent": true
 }
 ```
+
+The authenticated Firecrawl MCP tool schema exposes `changeTracking` as a string format.
+It does not expose REST-level `mode`, `modes`, or `tag` fields, and rejects unknown fields
+with `additionalProperties: false`. Do not pass unsupported change-tracking arguments.
 
 Then branch on `changeTracking.changeStatus`:
 
@@ -26,19 +30,19 @@ Then branch on `changeTracking.changeStatus`:
 | -------------- | ------------------------ | ---------------------------------------------------------------------- |
 | `"same"`       | Page identical to last run | **Skip the whole company this run.** No map, no JD scrapes, no LLM pass. |
 | `"new"`        | First scrape ever        | Process the full listing (collect all candidate rows), then dedup vs `Seen`. |
-| `"changed"`    | Page differs             | Read `diff.text`; the **added (`+`) lines hold the new job rows** — take candidate URLs from those, then dedup vs `Seen`. |
+| `"changed"`    | Page differs             | Process the full current listing, then dedup every candidate URL vs `Seen`. |
 | `"removed"`    | Listing gone             | Log the error, continue.                                               |
 
 Why it helps: across 3 daily runs, most careers pages are unchanged between runs, so a
-single cheap listing scrape ends the work for that company. On `"changed"`, the git-diff
-hands you exactly the new rows, so you never re-enumerate the whole page.
+single cheap listing scrape ends the work for that company. A changed page is reprocessed
+in full, but the `Seen` ledger still prevents old jobs from reaching JD scraping.
 
 Notes:
 - `markdown` **must** be in `formats` (change tracking compares markdown).
 - `changeTracking` **bypasses the cache** (`maxAge` is ignored on these calls) — that's
   fine; the listing scrape is 1 cheap call and it gates everything downstream.
 - Keep `onlyMainContent`, `includeTags`/`excludeTags` **consistent** run-to-run, or diffs
-  become unreliable. Use one fixed `tag: "jobscout"`.
+  become unreliable.
 
 ## 2. `maxAge` cache on JD (detail) scrapes — cheaper reads
 
@@ -86,8 +90,8 @@ the JD **inline** with the listing — zero extra JD scrapes. Always try the API
 (verified: 36 URLs → 36 credits). It gives **no credit discount**, but it runs the URLs
 concurrently in one job and accepts all scrape options (`changeTracking`, `maxAge`,
 `onlyMainContent`). Use it to cut tool-call round-trips and latency:
-- If the connector exposes batch scrape, batch all **due listing pages** with the
-  `changeTracking` git-diff format.
+- If the connector exposes batch scrape, batch all **due listing pages** with Markdown
+  and basic `changeTracking` formats.
 - If it exposes batch scrape, batch all **unseen JD** detail pages with `maxAge`.
 - Otherwise use independent `firecrawl_scrape` calls, concurrently when the client
   supports parallel tool execution. Missing batch support is not a run blocker.
@@ -98,8 +102,8 @@ the real savers.
 
 - **`/agent`** (autonomous extraction) can spend up to 2,500 credits per call — do **not**
   use it for routine scouting.
-- **`json` / `extract` formats** and **`json`-mode change tracking** cost extra (5 credits/
-  page for json change tracking) — use plain `git-diff` and read the rows yourself.
+- **`json` / structured extraction formats** and **JSON-mode change tracking** cost extra;
+  use basic change tracking and read the listing rows yourself.
 - **Enhanced mode, stealth proxies, PII redaction** all add credits and are unnecessary
   for public careers pages — leave them off.
 

@@ -17,7 +17,7 @@ fails. It relies on Firecrawl's general capabilities rather than a known API.
    `careers`, `search`, `role`, `opening`, or a country/city).
 2. Dedup the mapped URLs vs the `Seen` tab **first**, then `scrape` only the unseen JDs
    (with `maxAge` per the tuning cheatsheet). When you do scrape the listing page itself,
-   add the `changeTracking` git-diff format so an unchanged page skips the company.
+  request `formats: ["markdown", "changeTracking"]` so an unchanged page skips the company.
 
 ### B. If mapping is unhelpful, use site-scoped search
 Run Firecrawl `search` queries scoped to the careers domain, e.g.:
