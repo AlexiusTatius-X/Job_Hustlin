@@ -143,7 +143,7 @@ product_unicorns:
     careers_url: https://careers.sprinklr.com/
   - name: Postman
     tier: B
-    ats: greenhouse         # verify
+    ats: greenhouse         # confirmed slug: postman
     careers_url: https://www.postman.com/company/careers/open-positions/
   - name: Zeta
     tier: B
@@ -155,7 +155,7 @@ product_unicorns:
     careers_url: https://www.dream11.com/careers
   - name: Rubrik
     tier: C
-    ats: greenhouse         # verify
+    ats: greenhouse         # confirmed slug: rubrik
     careers_url: https://www.rubrik.com/company/careers
   - name: Databricks
     tier: C
@@ -177,7 +177,7 @@ quant_hft:               # highest CTC; hire few junior SDEs, selective → all 
     careers_url: https://www.deshaw.com/careers
   - name: Tower Research Capital
     tier: C
-    ats: greenhouse         # verify
+    ats: greenhouse         # confirmed slug: towerresearchcapital
     careers_url: https://www.tower-research.com/open-positions/
   - name: Graviton Research Capital
     tier: C

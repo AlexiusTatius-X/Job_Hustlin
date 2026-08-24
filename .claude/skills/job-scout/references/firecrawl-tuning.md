@@ -80,8 +80,9 @@ cheaply and often include the JD inline, so skip `map` for those.)
 
 ## 5. Prefer the ATS JSON API over scraping (already the default)
 
-Greenhouse (`?content=true`), Lever (`descriptionPlain`), and Workday detail calls return
-the JD **inline** with the listing — zero extra JD scrapes. Always try the API path first
+Lever (`descriptionPlain`) and some ATS detail calls return the JD inline. Reuse compact
+inline content, but do not fetch a large Greenhouse board with `?content=true`: retrieve
+metadata first, dedup, then fetch individual unseen details. Always try the API path first
 (see the per-ATS reference files); fall back to scrape/map only for `custom` sites.
 
 ## 6. Batch the scrapes — throughput, NOT credits

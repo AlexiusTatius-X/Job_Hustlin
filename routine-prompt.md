@@ -26,6 +26,8 @@ workflow for this run:
    Before any Sheet mutation or discovery, verify that the attached Firecrawl connector
    exposes `firecrawl_scrape`. If it does not, stop: do not use search snippets, do not
    log jobs, and send only the operational failure email defined in `email-format.md`.
+   Keep context compact: do not narrate each company, retain rejected JD bodies, or load
+   large boards with every JD inline when a metadata-only listing endpoint exists.
 2. Through Composio's active `Job_Hustlin` Google Sheets connection, open only the
    spreadsheet ID in `config/profile.md`; ensure the `Seen` and current week tabs exist
    (create them if missing) per `references/sheet-format.md`.
@@ -42,8 +44,10 @@ workflow for this run:
    current week tab using the exact Composio tools in `references/sheet-format.md`.
 8. Email the digest to the address in `config/profile.md` via Gmail, formatted per
    `references/email-format.md`.
-9. End with a short summary: companies scanned, errors, found → kept → new, rows appended,
-   email sent.
+9. End with exact accounting. Every due company must be `unchanged`, `scanned`, or
+   `error`, and due must equal the sum of those states. Reconcile every unseen candidate
+   to JD opened, inline JD used, or JD error. If either check fails, mark the run PARTIAL
+   and list unprocessed due companies; do not claim the run completed.
 
 Only use Firecrawl Full Access, Gmail, and Composio's Google Sheets tools plus this repo's files.
 Within Composio, do not use any other app, remote shell, or workbench. Access only the

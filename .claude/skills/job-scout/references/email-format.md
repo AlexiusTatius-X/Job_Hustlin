@@ -58,3 +58,9 @@ The run stopped before discovery and Sheet writes because the attached Firecrawl
 connector did not expose firecrawl_scrape. Search snippets were not used to classify or
 log jobs. Attach the authenticated Firecrawl Full Access custom connector and retry the run.
 ```
+
+## Partial run
+
+If verified jobs were logged but one or more due companies were not processed, prefix the
+normal subject with `[PARTIAL]` and list every unprocessed due company near the top. Never
+present a partial result as complete.

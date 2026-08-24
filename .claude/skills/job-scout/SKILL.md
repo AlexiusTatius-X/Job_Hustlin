@@ -32,6 +32,10 @@ Run these steps in order. Work company-by-company; independent companies may be
 processed in bounded parallel waves, subject to `firecrawl_max_concurrency` in
 `profile.md`.
 
+Keep execution context compact. Do not narrate progress company-by-company, retain full
+listing/JD bodies after a decision, or load unfiltered full-JD board responses when a
+metadata-only listing endpoint exists. Save detailed accounting for the final summary.
+
 ### 1. Set up run context
 - Compute **now** in the `timezone` from `profile.md` (IST). Record `today` (date) and
   `run_time` (HH:MM).
@@ -76,6 +80,10 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
     weekday ∈ {Mon, Thu}.
   Skip companies not due; they're covered on their next scheduled cadence. The rule is
   derived purely from the timestamp, so no extra state is needed.
+- Create an exact due-company ledger before scanning. Every due company must finish in
+  exactly one terminal state: `unchanged`, `scanned`, or `error`. A company is `scanned`
+  only after all its listing candidates have been accounted for. Never silently defer a
+  due company because of token/context budget.
 - Read `references/firecrawl-tuning.md` once and apply its credit levers to **every**
   Firecrawl call below (change-tracking on listings, `maxAge` cache on JD scrapes,
   `map` with a `search` filter, minimal `formats`).
@@ -110,10 +118,13 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   normalized `job_url`/`job_id` is already in the seen-set from step 2. Only **unseen**
   candidates continue. On steady-state runs this eliminates almost everything, so you
   open very few JDs.
-- Note: for ATS-API companies (Greenhouse `content=true`, Lever `descriptionPlain`,
-  Workday detail) the JD text often comes back **inline** in the listing call — keep it,
-  so step 4 needs no extra fetch for those.
+- Note: some ATS API responses include a full JD. Reuse it when the response is already
+  compact, but do not request every JD inline from a large board. Greenhouse must use a
+  metadata-only listing first and individual detail calls for unseen candidates.
 - Be resilient: if one company errors, record the error and continue to the next.
+- For every candidate surviving the coarse listing filter, record exactly one outcome:
+  `seen`, `JD_opened`, `inline_JD_used`, or `JD_error`. No candidate may disappear
+  between the unseen count and JD classification.
 
 ### 4. Open JDs for unseen candidates only, then classify & filter
 - Gather the **unseen** candidates from all companies, then fetch their JDs with
@@ -159,11 +170,14 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   jobs today" note; otherwise skip the email.
 
 ### 9. Run summary
-- End with a brief transcript summary: companies scanned, companies **skipped as unchanged**
-  (change-tracking `"same"`), companies that errored, and the funnel — candidates listed →
-  unseen after Dedup #1 → JDs opened → kept after filter → rows logged — plus whether the
-  email was sent. Flag any `# verify` companies whose ATS you confirmed so the config can
-  be updated.
+- End with a brief transcript summary using exact counts from the due-company ledger:
+  due = unchanged + scanned + error. Report the funnel as candidates listed → seen →
+  unseen → JD opened + inline JD used + JD error → kept → rows logged. Flag any `# verify`
+  companies whose ATS you confirmed so the config can be updated.
+- If any due company lacks a terminal state or the candidate funnel does not reconcile,
+  label the run **PARTIAL**. Do not say "run complete" or claim deferred companies will
+  run at the next slot unless their tier is actually due then. A partial digest, if sent,
+  must include `[PARTIAL]` in its subject and list all unprocessed due companies.
 
 ## Guardrails
 - **Never fabricate** a posting, URL, or company. If you didn't fetch it, don't log it.
