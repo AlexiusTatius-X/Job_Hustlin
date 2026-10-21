@@ -1,9 +1,24 @@
 # ATS pattern: Workday
 
 Workday career sites live on `*.myworkdayjobs.com` (e.g.
-`nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite`). They are JS-heavy but expose a
-predictable **JSON search endpoint** that Firecrawl can hit directly — prefer it over
-scraping the rendered page.
+`nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite`). They are JS-heavy.
+
+## 0. What actually works (verified 2026-10-21)
+The `/wday/cxs/.../jobs` JSON endpoint below needs a **POST**, and `firecrawl_scrape` can
+only GET, so it does not work through this connector. Use the rendered search page:
+
+```json
+{ "url": "https://<tenant>.<dc>.myworkdayjobs.com/<SITE>?q=software%20engineer%20India",
+  "formats": ["markdown", "changeTracking"], "onlyMainContent": true, "waitFor": 6000 }
+```
+
+Without `waitFor` the page returns only "Search for Jobs page is loaded / Loading" and no
+rows. With it, each row has the title, job link, `India-<City>` in the URL path, "Posted N
+Days Ago" and the req id. Drop titles containing Senior/Sr/Staff/Principal/Lead/Manager
+before opening JDs. A redirect to "Workday is currently unavailable" means the tenant,
+data-center (`wdN`) or site path is wrong — not an outage.
+
+Sections 1–3 below are kept for reference only.
 
 ## 1. Identify the tenant + site path
 From `careers_url` like `https://<tenant>.<dc>.myworkdayjobs.com/<SITE>`:

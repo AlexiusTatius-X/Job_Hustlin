@@ -6,14 +6,14 @@ description: >-
   developer jobs, run the job hunt, or refresh the job tracker. Scrapes each company's
   careers site via the Firecrawl connector, filters to on-site India roles requiring
   0-2 years, de-duplicates against a Google Sheet through Composio, appends new matches,
-  and emails a digest. Built to run unattended from a Claude Routine, 3x/day.
+  and emails a digest. Built to run unattended from a Claude Routine, once a day.
 ---
 
 # job-scout
 
 Scout top companies' career portals for **new entry-level software-developer roles in
 India**, log them to a Google Sheet, and email a digest. Designed to run **autonomously**
-from a Claude Routine three times a day.
+from a Claude Routine once a day.
 
 You have three connectors available: **Firecrawl Full Access** (authenticated web search/scrape/map),
 **Composio** (Google Sheets state + log through the active `Job_Hustlin` connection),
@@ -73,8 +73,8 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 (JD) pages** — it is what keeps credits/time low.
 - **Tier gate (which companies run this time):** include a company only if its `tier`
   is due for this run, based on the IST time from step 1 and the pinned `run_times` in
-  `profile.md` (`08:00`, `14:00`, `20:00`; the `08:00` slot is the only one with hour < 12):
-  - `tier: A` → **every run** (all 3 slots).
+  `profile.md` (currently one daily run at `09:00`, which has hour < 12):
+  - `tier: A` → **every run**.
   - `tier: B` → only the **morning run** — i.e. IST hour < 12 (the `08:00` slot).
   - `tier: C` → only the **morning run of Monday and Thursday** — IST hour < 12 **and**
     weekday ∈ {Mon, Thu}.
@@ -87,10 +87,22 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
 - Read `references/firecrawl-tuning.md` once and apply its credit levers to **every**
   Firecrawl call below (change-tracking on listings, `maxAge` cache on JD scrapes,
   `map` with a `search` filter, minimal `formats`).
+- Skip any company with `enabled: false`.
+- **Verified `listing_url` first:** if the company has a `listing_url`, fetch exactly that
+  URL as its listing (pass `waitFor: <wait_for>` when `wait_for` is set). Do not guess,
+  rewrite, or substitute other endpoints for it. Only if it fails (non-200, empty, or a
+  "Workday is currently unavailable" / "Page not found" page) fall back to the ATS
+  reference below, and name the failing URL in the run summary so the config can be fixed.
+  JSON listings (`amazon-json`, `eightfold-json`, `smartrecruiters`, `rippling-json`,
+  Greenhouse API) are described in `references/ats-json.md`.
+- When a Firecrawl result is too large and is saved to a file, parse it with a short
+  `python3` script via Bash (json.loads on the embedded JSON, or regex on links). Do not
+  read the whole file into context.
 - Pick the extraction approach from its `ats` type and read the matching reference:
   - `workday` → `references/ats-workday.md`
   - `greenhouse` → `references/ats-greenhouse.md`
   - `lever` → `references/ats-lever.md`
+  - `amazon-json`, `eightfold-json`, `smartrecruiters`, `rippling-json` → `references/ats-json.md`
   - anything else (`custom`, `oracle`, `successfactors`, `smartrecruiters`, `ashby`,
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
 - **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,

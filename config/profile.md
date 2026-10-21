@@ -16,11 +16,11 @@ do not hardcode them in the skill.
 ## Schedule / time
 
 - **timezone:** `Asia/Kolkata` (IST)
-- **cadence:** 3 runs per day.
-- **run_times:** `08:00`, `14:00`, `20:00` IST — **set these exact times in the routine UI.**
-  The tier gate below assumes **exactly one** run (the `08:00` slot) is before 12:00 IST;
-  keep one morning slot and two afternoon/evening slots or the once-a-day tiers misfire.
-- **morning_run:** the `08:00` IST slot = the only run with IST hour < 12. This is the run
+- **cadence:** 1 run per day (cut from 3 on 2026-10-21: 3 runs/day used ~2,700
+  Firecrawl credits/month against a 1,000-credit plan).
+- **run_times:** `09:00` IST (cron `30 3 * * *` UTC). If you add afternoon/evening slots,
+  keep exactly **one** slot before 12:00 IST or the once-a-day tiers misfire.
+- **morning_run:** the `09:00` IST slot = the only run with IST hour < 12. This is the run
   that also scans the once-a-day (B) and twice-a-week (C) tiers.
 - **company tiers:** each company in `companies.yaml` has a `tier` controlling scan
   frequency (derived purely from the IST timestamp — no stored state):
