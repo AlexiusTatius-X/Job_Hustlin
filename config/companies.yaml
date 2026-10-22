@@ -125,8 +125,10 @@ big_tech:
 product_unicorns:
   - name: Flipkart
     tier: A
-    ats: custom
+    ats: custom             # jobs live on TurboHire, not flipkartcareers.com
     careers_url: https://www.flipkartcareers.com/
+    listing_url: https://flipkart.turbohire.co/dashboardv2?orgId=4d757ba0-3d57-448a-b82c-238ed87ac90f&type=0   # found by run 2026-10-22
+    wait_for: 4000
   - name: Swiggy
     tier: A
     ats: smartrecruiters
