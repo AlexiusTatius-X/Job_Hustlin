@@ -102,7 +102,8 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   - `workday` → `references/ats-workday.md`
   - `greenhouse` → `references/ats-greenhouse.md`
   - `lever` → `references/ats-lever.md`
-  - `amazon-json`, `eightfold-json`, `smartrecruiters`, `rippling-json` → `references/ats-json.md`
+  - `amazon-json`, `eightfold-json`, `oracle-json`, `atlassian-json`, `smartrecruiters`,
+    `rippling-json` → `references/ats-json.md`
   - anything else (`custom`, `oracle`, `successfactors`, `smartrecruiters`, `ashby`,
     `icims`, `eightfold`, or an unknown/`# verify` value) → `references/ats-generic.md`
 - **Change-tracking short-circuit (free; do this first):** fetch the listing (careers page,
@@ -150,8 +151,14 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   (Workday "Posted N Days Ago", Amazon `posted_date`, Microsoft `postedTs`, SmartRecruiters
   `releasedDate`, Greenhouse `first_published`, or a date in the JD). Reject any posting
   older than `freshness_days` (currently 1). Apply this on the listing **before** opening
-  JDs wherever a date is shown, to save credits. If no date is available anywhere, keep it
-  only if it passes every other filter, and mark its Exp/notes "date not shown".
+  JDs wherever a date is shown, to save credits.
+- **Undated sources (Google, Lever boards, Apple if no date renders, map/search results):**
+  a missing date is NOT a reason to reject. For these, "first time this bot sees the URL"
+  counts as posted today: if the URL is not in `Seen` and the job passes every other
+  filter, KEEP it and log it with Exp/notes "date not shown". `Seen` dedup guarantees it
+  is never logged again. Do not skip Google jobs for lack of a date.
+  `amex`, `visa`, `meta`, `dream11`, `postman`, `zomato` have no verified feed; use
+  `ats-generic.md` and do not spend more than 2 Firecrawl calls on each.
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).

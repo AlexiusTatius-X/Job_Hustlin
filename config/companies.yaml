@@ -43,6 +43,8 @@ big_tech:
     tier: B
     ats: custom
     careers_url: https://jobs.apple.com/en-in/search
+    listing_url: https://jobs.apple.com/en-in/search?location=india-INDC&search=software%20engineer&sort=newest   # verified 2026-10-22
+    wait_for: 3000
   - name: Meta
     tier: B
     ats: custom
@@ -72,22 +74,25 @@ big_tech:
     careers_url: https://www.uber.com/us/en/careers/list/
   - name: Atlassian
     tier: A
-    ats: custom            # verify
+    ats: atlassian-json
     careers_url: https://www.atlassian.com/company/careers/all-jobs
+    listing_url: https://www.atlassian.com/endpoint/careers/listings   # verified 2026-10-22
   - name: Oracle
     tier: B
-    ats: oracle
-    careers_url: https://careers.oracle.com/jobs/
+    ats: oracle-json
+    careers_url: https://careers.oracle.com/en/sites/jobsearch/jobs
+    listing_url: https://eeho.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_45001,keyword=software%20engineer,locationId=300000000106947,sortBy=POSTING_DATES_DESC   # verified 2026-10-22
   - name: Cisco
     tier: B
-    ats: custom
-    careers_url: https://jobs.cisco.com/jobs/SearchJobs/
+    ats: workday
+    careers_url: https://cisco.wd5.myworkdayjobs.com/Cisco_Careers
+    listing_url: https://cisco.wd5.myworkdayjobs.com/Cisco_Careers?q=software%20engineer%20India   # verified 2026-10-22
+    wait_for: 6000
   - name: Qualcomm
     tier: A
-    ats: workday
-    careers_url: https://qualcomm.wd12.myworkdayjobs.com/External
-    listing_url: https://qualcomm.wd12.myworkdayjobs.com/External?q=software%20engineer%20India   # verified 2026-10-21
-    wait_for: 6000
+    ats: eightfold-json
+    careers_url: https://careers.qualcomm.com/careers
+    listing_url: https://careers.qualcomm.com/api/pcsx/search?domain=qualcomm.com&query=software%20engineer&location=India&sort_by=timestamp   # verified 2026-10-22
   - name: ServiceNow
     tier: B
     ats: workday
@@ -147,8 +152,9 @@ product_unicorns:
     careers_url: https://www.zomato.com/careers
   - name: Razorpay
     tier: B
-    ats: lever              # verify
-    careers_url: https://razorpay.com/jobs/
+    ats: greenhouse
+    careers_url: https://job-boards.greenhouse.io/razorpaysoftwareprivatelimited
+    listing_url: https://boards-api.greenhouse.io/v1/boards/razorpaysoftwareprivatelimited/jobs   # verified 2026-10-22
   - name: CRED
     tier: B
     ats: lever
@@ -165,8 +171,10 @@ product_unicorns:
     careers_url: https://zerodha.com/careers/
   - name: Sprinklr
     tier: B
-    ats: lever              # verify
-    careers_url: https://careers.sprinklr.com/
+    ats: workday
+    careers_url: https://sprinklr.wd1.myworkdayjobs.com/careers
+    listing_url: https://sprinklr.wd1.myworkdayjobs.com/careers?q=software%20engineer%20India   # verified 2026-10-22
+    wait_for: 6000
   - name: Postman
     tier: B
     ats: custom             # greenhouse slug 'postman' 404s as of 2026-10-21
@@ -238,12 +246,14 @@ fintech_banks:
     careers_url: https://higher.gs.com/roles
   - name: Morgan Stanley
     tier: B
-    ats: custom
-    careers_url: https://www.morganstanley.com/careers/career-opportunities-search
+    ats: eightfold-json
+    careers_url: https://morganstanley.eightfold.ai/careers
+    listing_url: https://morganstanley.eightfold.ai/api/pcsx/search?domain=morganstanley.com&query=software%20engineer&location=India&sort_by=timestamp   # verified 2026-10-22
   - name: JPMorgan Chase
     tier: B
-    ats: oracle             # verify
-    careers_url: https://careers.jpmorgan.com/global/en/students/programs
+    ats: oracle-json
+    careers_url: https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001
+    listing_url: https://jpmc.fa.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1001,keyword=software%20engineer,locationId=300000000289360,sortBy=POSTING_DATES_DESC   # verified 2026-10-22
   - name: American Express
     tier: B
     ats: eightfold          # verify

@@ -22,6 +22,26 @@ file; parse them with `python3` via Bash rather than reading them into context.
   department "Applied Sciences". `workLocationOption: "remote"` → reject.
 - Paging/seniority query params are ignored by this API; one page per run is it.
 
+## eightfold-json, other tenants (Qualcomm, Morgan Stanley)
+Same response shape as Microsoft. Job URL = the tenant host (`https://careers.qualcomm.com`
+or `https://morganstanley.eightfold.ai`) + `positionUrl`. `postedTs` is epoch seconds.
+
+## oracle-json (JPMorgan Chase, Oracle)
+Oracle Recruiting Cloud REST. `items[0].requisitionList[]` has `Title`, `Id`,
+`PrimaryLocation`, `PostedDate` (YYYY-MM-DD), `ShortDescriptionStr`. The `locationId`
+in the configured URL already limits results to India. Job URL:
+- JPMorgan: `https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/<Id>`
+- Oracle: `https://careers.oracle.com/en/sites/jobsearch/job/<Id>`
+No full JD inline: scrape unseen JD URLs (JPMorgan "Software Engineer II" is often 2+ yrs;
+let the JD decide).
+
+## atlassian-json (Atlassian)
+`https://www.atlassian.com/endpoint/careers/listings` returns ALL jobs (~2.5 MB, gets
+saved to a file; parse with python). Each item has `title`, `locations[]`, `category`,
+`portalJobPost.updatedDate`, `portalJobPost.portalUrl` (job URL), and the full JD inline in
+`overview` + `responsibilities` + `qualifications` — use it as `inline_JD_used`, no JD
+scrape needed. Keep only locations containing "India" that are not "Remote" only.
+
 ## smartrecruiters (Swiggy)
 `https://api.smartrecruiters.com/v1/companies/swiggy/postings?limit=100&country=in&q=engineer`
 - `content[]` has `name`, `id`, `location.city`, `releasedDate`. Job URL =
