@@ -146,6 +146,12 @@ Process each company in `companies.yaml`. **Do this before opening any job-descr
   calls in waves no larger than `firecrawl_max_concurrency`, waiting for each wave to
   finish before launching the next. **This per-JD scrape — the only expensive step — is
   paid only for genuinely new postings.**
+- **Freshness gate (present day only):** use the posted date from the listing or JD
+  (Workday "Posted N Days Ago", Amazon `posted_date`, Microsoft `postedTs`, SmartRecruiters
+  `releasedDate`, Greenhouse `first_published`, or a date in the JD). Reject any posting
+  older than `freshness_days` (currently 1). Apply this on the listing **before** opening
+  JDs wherever a date is shown, to save credits. If no date is available anywhere, keep it
+  only if it passes every other filter, and mark its Exp/notes "date not shown".
 - Apply `references/matching-rubric.md` strictly. Keep a posting **only if all** hold:
   - It is a **core software-development** role (SDE/SWE/software developer or equivalent)
     — decide by **JD content**, not just the title (handles odd titles like Apple's).

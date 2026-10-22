@@ -71,4 +71,6 @@ Components: title-match strength, experience fit, location priority, freshness.
 - **max_companies_per_run:** `all`   # 47 currently; every due company needs a terminal status
 - **firecrawl_max_concurrency:** `2`  # plan limit; never have more than 2 Firecrawl calls in flight
 - **max_new_jobs_emailed:** `40`
-- **freshness_days:** `14`            # ignore postings clearly older than this when a date is available
+- **freshness_days:** `1`             # PRESENT DAY ONLY (user, 2026-10-22): keep only jobs posted
+  # today or yesterday ("Posted Today", "Posted Yesterday", "Posted 1 Day Ago", or a date <= 1 day
+  # before the run). Never backfill older open postings.
